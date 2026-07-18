@@ -104,13 +104,13 @@ async function generateASS(words, assPath) {
 
   const header = `[Script Info]
 ScriptType: v4.00+
-PlayResX: 1080
-PlayResY: 1920
+PlayResX: 720
+PlayResY: 1280
 ScaledBorderAndShadow: yes
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Default,Luckiest Guy,85,&H00FFFFFF,&H0000FFFF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,6,0,8,30,30,250,1
+Style: Default,Luckiest Guy,60,&H00FFFFFF,&H0000FFFF,&H00000000,&H00000000,0,0,0,0,100,100,0,0,1,5,0,8,20,20,180,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -139,8 +139,8 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 function renderVideo({ concatPath, audioPath, assPath, outputPath, hasSubtitles }) {
   return new Promise((resolve, reject) => {
     const vf = [
-      'scale=1080:1920:force_original_aspect_ratio=increase',
-      'crop=1080:1920',
+      'scale=720:1280:force_original_aspect_ratio=increase',
+      'crop=720:1280',
       ...(hasSubtitles ? [`subtitles='${assPath.replace(/'/g, "\\'")}':fontsdir=/app/fonts`] : [])
     ].join(',');
 
@@ -148,8 +148,9 @@ function renderVideo({ concatPath, audioPath, assPath, outputPath, hasSubtitles 
       .input(concatPath).inputOptions(['-f concat', '-safe 0'])
       .input(audioPath)
       .videoFilter(vf)
-      .videoCodec('libx264').outputOption('-preset fast').outputOption('-crf 23')
-      .audioCodec('aac').outputOption('-b:a 128k')
+      .videoCodec('libx264').outputOption('-preset ultrafast').outputOption('-crf 28')
+      .outputOption('-threads 1')
+      .audioCodec('aac').outputOption('-b:a 96k')
       .outputOptions(['-pix_fmt yuv420p', '-movflags +faststart', '-shortest'])
       .output(outputPath)
       .on('start', cmd => console.log('FFmpeg:', cmd.substring(0, 120)))
