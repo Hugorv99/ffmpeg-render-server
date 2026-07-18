@@ -147,11 +147,10 @@ function renderVideo({ concatPath, audioPath, assPath, outputPath, hasSubtitles 
     ].join(',');
 
     ffmpeg()
-      .input(concatPath).inputOptions(['-f concat', '-safe 0', '-r 30'])
+      .input(concatPath).inputOptions(['-f concat', '-safe 0'])
       .input(audioPath)
       .videoFilter(vf)
       .videoCodec('libx264').outputOption('-preset ultrafast').outputOption('-crf 28')
-      .outputOption('-r 30')
       .outputOption('-threads 1')
       .audioCodec('aac').outputOption('-b:a 96k')
       .outputOptions(['-pix_fmt yuv420p', '-movflags +faststart', '-shortest'])
