@@ -138,17 +138,20 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 
 function renderVideo({ concatPath, audioPath, assPath, outputPath, hasSubtitles }) {
   return new Promise((resolve, reject) => {
+    const escapedAss = assPath.replace(/\\/g, '/').replace(/'/g, "\\'");
     const vf = [
+      'fps=30',                                              // generate real 30fps frames so subtitle filter fires every frame
       'scale=720:1280:force_original_aspect_ratio=increase',
       'crop=720:1280',
-      ...(hasSubtitles ? [`subtitles='${assPath.replace(/'/g, "\\'")}':fontsdir=/app/fonts`] : [])
+      ...(hasSubtitles ? [`subtitles='${escapedAss}':fontsdir=/app/fonts`] : [])
     ].join(',');
 
     ffmpeg()
-      .input(concatPath).inputOptions(['-f concat', '-safe 0'])
+      .input(concatPath).inputOptions(['-f concat', '-safe 0', '-r 30'])
       .input(audioPath)
       .videoFilter(vf)
       .videoCodec('libx264').outputOption('-preset ultrafast').outputOption('-crf 28')
+      .outputOption('-r 30')
       .outputOption('-threads 1')
       .audioCodec('aac').outputOption('-b:a 96k')
       .outputOptions(['-pix_fmt yuv420p', '-movflags +faststart', '-shortest'])
